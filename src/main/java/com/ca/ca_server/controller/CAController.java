@@ -1,27 +1,32 @@
 package com.ca.ca_server.controller;
 
-import com.ca.ca_server.service.ICryptoEngine;
+import com.ca.ca_server.dto.request.SignRequest;
+import com.ca.ca_server.dto.response.CertificateResponseDTO;
+import com.ca.ca_server.enums.CertificateStatus;
+import com.ca.ca_server.service.IRSAService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/ca")
 public class CAController {
-
     @Autowired
-    @Qualifier("caRsaEngine")
-    private ICryptoEngine cryptoEngine;
-
+    private IRSAService rsaService;
     @PostMapping("/sign")
-    public String signData(@RequestBody String data) {
-        try {
-            return cryptoEngine.sign(data);
-        } catch (Exception e) {
-            return "Error signing data: " + e.getMessage();
-        }
+    public ResponseEntity<CertificateResponseDTO> signData(@Valid @RequestBody SignRequest request) throws Exception {
+        CertificateResponseDTO response = rsaService.signAndIssue(request.getData(), request.getOwner());
+        return ResponseEntity.ok(response);
+    }
+    @PatchMapping("/revoke/{serialNumber}")
+    public ResponseEntity<String> revokeCertificate(@PathVariable String serialNumber) throws Exception {
+        rsaService.revokeCertificate(serialNumber);
+        return ResponseEntity.ok("Certificate " + serialNumber + " đã được thu hồi.");
+    }
+    @GetMapping("/status/{serialNumber}")
+    public ResponseEntity<CertificateStatus> getCertificateStatus(@PathVariable String serialNumber) throws Exception {
+        CertificateStatus status = rsaService.getStatus(serialNumber);
+        return ResponseEntity.ok(status);
     }
 }

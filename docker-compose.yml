@@ -1,0 +1,16 @@
+
+  services:
+    ca-postgres:
+      image: postgres:16-alpine
+      container_name: ca_postgres_db
+      environment:
+        POSTGRES_DB: ca_db
+        POSTGRES_USER: ca
+        POSTGRES_PASSWORD: root
+      ports:
+        - "5432:5432"
+      volumes:
+        - ca_data:/var/lib/postgresql/data
+
+  volumes:
+    ca_data:
