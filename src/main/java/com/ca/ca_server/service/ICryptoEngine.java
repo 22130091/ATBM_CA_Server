@@ -7,8 +7,11 @@ public interface ICryptoEngine {
 
     String getPublicKeyString();
     String getPrivateKeyString();
+    
+    String hash(String data) throws Exception;
 
-    String sign(String data) throws Exception;
 
-    boolean verify(String data, String signature, String publicKeyStr) throws Exception;
+    String sign(String data, String padding) throws Exception;
+
+    boolean verify(String data, String signature, String publicKeyStr, String padding) throws Exception;
 }
