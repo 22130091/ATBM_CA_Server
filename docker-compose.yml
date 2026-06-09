@@ -1,16 +1,30 @@
+services:
+  ca-postgres:
+    image: postgres:16-alpine
+    container_name: ca_postgres_db
+    environment:
+      POSTGRES_DB: ca_db
+      POSTGRES_USER: ca
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - ca_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
-  services:
-    ca-postgres:
-      image: postgres:16-alpine
-      container_name: ca_postgres_db
-      environment:
-        POSTGRES_DB: ca_db
-        POSTGRES_USER: ca
-        POSTGRES_PASSWORD: root
-      ports:
-        - "5432:5432"
-      volumes:
-        - ca_data:/var/lib/postgresql/data
+  ca-server:
+    build: .
+    container_name: ca_server_app
+    depends_on:
+      - ca-postgres
+    environment:
+      - KEYSTORE_PASSWORD=hCmUaF@2026
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ca-postgres:5432/ca_db
+      - SPRING_DATASOURCE_USERNAME=ca
+      - SPRING_DATASOURCE_PASSWORD=root
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
 
-  volumes:
-    ca_data:
+volumes:
+  ca_data:

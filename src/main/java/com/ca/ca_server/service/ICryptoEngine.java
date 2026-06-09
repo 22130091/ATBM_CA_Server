@@ -9,7 +9,7 @@ public interface ICryptoEngine {
     String getPrivateKeyString();
     
     String hash(String data) throws Exception;
-
+    String signWithPrivateKey(String data, String privateKeyStr, String padding) throws Exception;
 
     String sign(String data, String padding) throws Exception;
 
