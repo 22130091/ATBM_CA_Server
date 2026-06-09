@@ -122,6 +122,10 @@ public class RSAServiceImpl implements IRSAService {
     public boolean verifySignature(String data, String signature, String owner, String padding) throws Exception {
         Certificate cert = certRepository.findByOwnerAndStatus(owner, CertificateStatus.GOOD)
                 .orElseThrow(() -> new Exception("Owner không tồn tại!"));
+        if (cert.getStatus() == CertificateStatus.REVOKED) {
+            log.warn("Lưu ý: chứng chỉ {} đã bị thu hồi. Từ chối xác thực!", cert.getSerialNumber());
+            return false;
+        }
         return cryptoEngine.verify(data, signature, cert.getPublicKey(), padding);
     }
 }
